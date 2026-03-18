@@ -9,7 +9,7 @@ CORS(app)
 
 # 🔑 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
 import os
-API_KEY = os.getenv"API_KEY"
+API_KEY = os.getenv("API_KEY")
 
 @app.route("/chat", methods=["POST"])
 def chat():
