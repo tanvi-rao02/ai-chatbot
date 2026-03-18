@@ -55,5 +55,7 @@ def chat():
 
 # ✅ FINAL RUN BLOCK (VERY IMPORTANT FOR RENDER)
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    print("Starting server on port:", port)
+    app.run(host="0.0.0.0", port=port, debug=False)
