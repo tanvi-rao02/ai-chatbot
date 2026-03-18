@@ -11,6 +11,10 @@ CORS(app)
 
 API_KEY = os.getenv("API_KEY")
 
+@app.route("/")
+def home():
+    return "AI Chatbot is running"
+
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json["message"]
