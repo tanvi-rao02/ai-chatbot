@@ -3,4 +3,4 @@ services:
     name: ai-chatbot
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.p
+    startCommand: python app.py
