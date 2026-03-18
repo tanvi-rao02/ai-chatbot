@@ -7,7 +7,7 @@ import requests
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origin": "*"}}, supports_credentials=True)
 
 API_KEY = os.getenv("API_KEY")
 
@@ -16,6 +16,7 @@ def home():
     return "AI Chatbot is running"
 
 @app.route("/chat", methods=["POST"])
+@cross_origin()
 def chat():
     user_message = request.json["message"]
 

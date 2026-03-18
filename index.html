@@ -1,49 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>AI Chatbot</title>
+
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
             text-align: center;
-            margin-top: 100px;
         }
-        input {
-            padding: 10px;
-            width: 300px;
-        }
-        button {
-            padding: 10px;
-        }
-        #reply {
+
+        h2 {
             margin-top: 20px;
-            font-weight: bold;
+        }
+
+        #chat-box {
+            width: 60%;
+            height: 400px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            background: white;
+            padding: 10px;
+            overflow-y: auto;
+            text-align: left;
+            border-radius: 10px;
+        }
+
+        .user {
+            color: blue;
+            margin: 5px 0;
+        }
+
+        .bot {
+            color: green;
+            margin: 5px 0;
+        }
+
+        input {
+            width: 50%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: black;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #333;
         }
     </style>
 </head>
+
 <body>
 
 <h2>AI Chatbot 🤖</h2>
 
-<input id="msg" placeholder="Ask something">
-<button onclick="send()">Send</button>
+<div id="chat-box"></div>
 
-<p id="reply"></p>
+<input type="text" id="user-input" placeholder="Type your message..." />
+<button onclick="sendMessage()">Send</button>
 
 <script>
-async function send() {
-    let message = document.getElementById("msg").value;
+async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const message = input.value;
 
-    let res = await fetch("http://127.0.0.1:5000/chat", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({message: message})
-    });
+    if (!message) return;
 
-    let data = await res.json();
-    document.getElementById("reply").innerText = data.reply;
+    const chatBox = document.getElementById("chat-box");
+
+    // show user message
+    chatBox.innerHTML += `<p class="user"><b>You:</b> ${message}</p>`;
+    input.value = "";
+
+    try {
+        const response = await fetch("https://ai-chatbot-gyvm.onrender.com/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+
+        // show bot reply
+        chatBox.innerHTML += `<p class="bot"><b>Bot:</b> ${data.reply}</p>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (error) {
+        chatBox.innerHTML += `<p style="color:red;">Error connecting to server</p>`;
+    }
 }
 </script>
 
