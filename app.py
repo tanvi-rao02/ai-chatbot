@@ -16,7 +16,6 @@ def home():
     return "AI Chatbot is running"
 
 @app.route("/chat", methods=["POST"])
-@cross_origin()
 def chat():
     user_message = request.json["message"]
 
