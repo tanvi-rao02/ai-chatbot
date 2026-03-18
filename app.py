@@ -1,14 +1,14 @@
-from dotenv import load_dotenv 
-load_dotenv
+from dotenv import load_dotenv
+load_dotenv()   # ✅ FIXED
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# 🔑 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
-import os
 API_KEY = os.getenv("API_KEY")
 
 @app.route("/chat", methods=["POST"])
@@ -23,7 +23,6 @@ def chat():
                 "Content-Type": "application/json"
             },
             json={
-                # ✅ Stable working model
                 "model": "llama-3.1-8b-instant",
                 "messages": [
                     {
@@ -41,7 +40,6 @@ def chat():
         data = response.json()
         print("FULL API RESPONSE:", data)
 
-        # ✅ Safe response handling
         if "choices" in data:
             reply = data["choices"][0]["message"]["content"]
         elif "error" in data:
@@ -55,5 +53,7 @@ def chat():
     return jsonify({"reply": reply})
 
 
+# ✅ FINAL RUN BLOCK (VERY IMPORTANT FOR RENDER)
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
