@@ -5,15 +5,20 @@ import os
 
 app = Flask(__name__)
 
-# ✅ FORCE CORS FOR EVERYTHING (NO FAIL)
+# ✅ FORCE CORS HARD (VERY IMPORTANT)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
     return "Backend is running 🚀"
 
-@app.route("/chat", methods=["POST"])
+@app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
+
+    # ✅ HANDLE PREFLIGHT REQUEST (THIS FIXES YOUR ERROR)
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"}), 200
+
     data = request.get_json()
     user_message = data.get("message")
 
@@ -33,13 +38,9 @@ def chat():
         )
 
         result = response.json()
-        reply = result.get("choices", [{}])[0].get("message", {}).get("content", "No response")
+        reply = result.get("choices", [{}])[0].get("message", {}).get("content", "No reply")
 
     except Exception as e:
         reply = str(e)
 
     return jsonify({"reply": reply})
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
