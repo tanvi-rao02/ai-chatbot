@@ -1,15 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import requests
 import os
-from dotenv import load_dotenv
-from flask_cors import CORS
-
-load_dotenv()
 
 app = Flask(__name__)
 
-# ✅ THIS IS THE MAIN FIX (IMPORTANT)
-CORS(app)
+# ✅ FORCE CORS FOR EVERYTHING (NO FAIL)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/")
 def home():
@@ -30,18 +27,13 @@ def chat():
             json={
                 "model": "llama-3.1-8b-instant",
                 "messages": [
-                    {"role": "system", "content": "You are a helpful AI assistant."},
                     {"role": "user", "content": user_message}
                 ]
             }
         )
 
         result = response.json()
-
-        if "choices" in result:
-            reply = result["choices"][0]["message"]["content"]
-        else:
-            reply = str(result)
+        reply = result.get("choices", [{}])[0].get("message", {}).get("content", "No response")
 
     except Exception as e:
         reply = str(e)
@@ -50,5 +42,4 @@ def chat():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=10000)
