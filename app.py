@@ -7,12 +7,12 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# ✅ MANUAL CORS FIX (VERY IMPORTANT)
+# ✅ FORCE CORS HEADERS (FIXES YOUR ISSUE)
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
     return response
 
 
@@ -24,11 +24,12 @@ def home():
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
 
-    # ✅ HANDLE PREFLIGHT
+    # ✅ HANDLE PREFLIGHT (THIS IS THE KEY FIX)
     if request.method == "OPTIONS":
-        return jsonify({"status": "ok"})
+        return "", 200
 
-    user_message = request.json.get("message")
+    data = request.get_json()
+    user_message = data.get("message")
 
     try:
         response = requests.post(
@@ -61,4 +62,4 @@ def chat():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port) 
