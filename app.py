@@ -5,8 +5,8 @@ import os
 
 app = Flask(__name__)
 
-# ✅ FORCE CORS HARD (VERY IMPORTANT)
-CORS(app, resources={r"/*": {"origins": "*"}})
+# ✅ Enable CORS properly
+CORS(app)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -15,12 +15,17 @@ def home():
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
 
-    # ✅ HANDLE PREFLIGHT REQUEST (THIS FIXES YOUR ERROR)
+    # ✅ Handle preflight request
     if request.method == "OPTIONS":
         return jsonify({"status": "ok"}), 200
 
     data = request.get_json()
-    user_message = data.get("message")
+
+    # ✅ Safety check (prevents crash)
+    if not data or "message" not in data:
+        return jsonify({"reply": "No message received"}), 400
+
+    user_message = data["message"]
 
     try:
         response = requests.post(
@@ -38,9 +43,15 @@ def chat():
         )
 
         result = response.json()
-        reply = result.get("choices", [{}])[0].get("message", {}).get("content", "No reply")
+
+        # ✅ Safe parsing (no crash)
+        reply = (
+            result.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content", "No reply from AI")
+        )
 
     except Exception as e:
-        reply = str(e)
+        reply = f"Error: {str(e)}"
 
     return jsonify({"reply": reply})
