@@ -22,8 +22,12 @@ API_KEY = os.getenv("API_KEY")
 def home():
     return "AI Chatbot is running"
 
-@app.route("/chat", methods=["POST"])
+@app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
+
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"}), 200
+    
     user_message = request.json["message"]
 
     try:
