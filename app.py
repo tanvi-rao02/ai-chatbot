@@ -7,7 +7,7 @@ import requests
 import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "ai-chatbot-six-chi.vercel.app"}})
 
 @app.after_request
 def after_request(response):
