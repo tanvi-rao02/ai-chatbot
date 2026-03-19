@@ -1,40 +1,37 @@
-from dotenv import load_dotenv
-load_dotenv()   # ✅ FIXED
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "ai-chatbot-six-chi.vercel.app"}})
 
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-    return response
+# ✅ Enable CORS for all domains (important for Vercel)
+CORS(app)
 
-API_KEY = os.getenv("API_KEY")
-
+# ✅ Health check route (optional but useful)
 @app.route("/")
 def home():
-    return "AI Chatbot is running"
+    return "Backend is running 🚀"
 
+# ✅ Chat route
 @app.route("/chat", methods=["POST", "OPTIONS"])
 def chat():
 
+    # ✅ Handle preflight request (VERY IMPORTANT for CORS)
     if request.method == "OPTIONS":
-        return jsonify({"status": "ok"}), 200
-    
-    user_message = request.json["message"]
+        return jsonify({"status": "ok"})
+
+    user_message = request.json.get("message")
 
     try:
         response = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {API_KEY}",
+                "Authorization": f"Bearer {os.getenv('API_KEY')}",
                 "Content-Type": "application/json"
             },
             json={
@@ -42,7 +39,7 @@ def chat():
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a helpful AI assistant for students. Explain in simple words with examples."
+                        "content": "You are a helpful AI assistant for students. Explain in simple words."
                     },
                     {
                         "role": "user",
@@ -53,8 +50,8 @@ def chat():
         )
 
         data = response.json()
-        print("FULL API RESPONSE:", data)
 
+        # ✅ Safe handling
         if "choices" in data:
             reply = data["choices"][0]["message"]["content"]
         elif "error" in data:
@@ -68,9 +65,7 @@ def chat():
     return jsonify({"reply": reply})
 
 
-# ✅ FINAL RUN BLOCK (VERY IMPORTANT FOR RENDER)
+# ✅ Run server properly on Render
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    print("Starting server on port:", port)
-    app.run(host="0.0.0.0", port=port, debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
